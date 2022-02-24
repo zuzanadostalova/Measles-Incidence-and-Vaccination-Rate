@@ -144,6 +144,7 @@ col2.plotly_chart(fig4)
 
 st.header(" ")
 st.subheader("Child Measles Vaccination Levels from 1980 to 2020")
+colg, colt = st.columns(2)
 
 # Enable selection of countries for plot (Widgets: selectbox)
 countries = sorted(pd.unique(df_imm['Country Name']))
@@ -174,7 +175,11 @@ rate_years_fig.update_layout(
     title={'text': "Percent of Children 12-23 Months of Age Immunized Against Measles in "+ country, "font": {"size": 16}, "x":0.5}
 )
 
-st.plotly_chart(rate_years_fig)
+colg.plotly_chart(rate_years_fig)
+
+if st.checkbox("Check the box if you are interested in the table"):
+    st.subheader("This is the country's dataset:")
+    colt.dataframe(data=df_subset)
 
 #plots MCV1 and MCV1
 
