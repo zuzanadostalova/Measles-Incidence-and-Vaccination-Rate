@@ -1,15 +1,14 @@
 # Measles & Immunization: the Last 40 Years
 
-example image:
 
 
 ![alternative text](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLNsuRzFy4wEmAYiNss4kTImouWhSChUsbryb-J2MZ--q13KOO_Jzqj7H3n4AZVozQ4BU&usqp=CAU)
 
 
-#### -- Project Status: [Active, On-Hold, Completed]
+#### -- Project Status: [Active]
 
 ## Project Intro/Objective
-The purpose of this project is ________. (Describe the main goals of the project. Limit to a short paragraph, 3-6 Sentences)
+The purpose of this project is to analyze measles data across the world showing the consequences of vaccinations and income. 
 
 ### Partner
 * [Name of Partner organization/Government department etc..]
@@ -19,20 +18,15 @@ The purpose of this project is ________. (Describe the main goals of the project
 
 ### Methods Used
 * Inferential Statistics
-* Machine Learning
 * Data Visualization
-* Predictive Modeling
-* etc.
 
 ### Technologies
-* R
 * Python
-* D3
-* PostGres, MySql
+* Streamlit
 * Pandas, jupyter
 * HTML
-* JavaScript
-* etc.
+* Plotly
+* Geojson
 
 ## Project Description
 (Provide more detailed overview of the project.
@@ -64,9 +58,6 @@ create another "setup.md" file and link to it here*
 
 ## Contributing Members
 
-**Team Leads (Contacts) : [Full Name](https://github.com/[github handle])**
-
-#### Other Members:
-
  - [Full Name](https://github.com/[github handle])
  - [Full Name](https://github.com/[github handle])
+ - [Ansam Zedan](https://github.com/ansamz)
