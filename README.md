@@ -3,7 +3,7 @@
 example image:
 
 
-![alternative text](https://mpng.subpng.com/20180407/bew/kisspng-measles-rubella-infection-virus-vaccine-creative-5ac91bee78a7c1.0913437815231293264942.jpg)
+![alternative text](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLNsuRzFy4wEmAYiNss4kTImouWhSChUsbryb-J2MZ--q13KOO_Jzqj7H3n4AZVozQ4BU&usqp=CAU)
 
 
 #### -- Project Status: [Active, On-Hold, Completed]
