@@ -176,10 +176,6 @@ rate_years_fig.update_layout(
 
 st.plotly_chart(rate_years_fig)
 
-if st.checkbox("Check the box if you are interested in the table"):
-    st.subheader("This is the country's dataset:")
-    st.dataframe(data=df_subset)
-
 #plots MCV1 and MCV1
 
 mcv = st.selectbox('Choose type of Antigen vaccination:', ['MCV1', 'MCV2'])
