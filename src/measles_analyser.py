@@ -1,5 +1,11 @@
 # Import needed packages
 import streamlit as st
+from plotly.subplots import make_subplots
+from urllib.request import urlopen
+import plotly.graph_objects as go
+import plotly.express as px
+import plotly.io as pio
+import pandas as pd
 import numpy as np
 import pandas as pd
 import statsmodels.formula.api as smf
@@ -9,10 +15,21 @@ import plotly.graph_objects as go
 from urllib.request import urlopen
 import json
 from copy import deepcopy
+import geojson
+import pycountry #conda install -c conda-forge pycountry
+
+# Add title and header
+#page configuration
+st.set_page_config(page_title="Measles & Immunization: the Last 40 Years", # page title, displayed on the window/tab bar
+        		   page_icon="⚙️", # favicon: icon that shows on the window/tab bar (tip: you can use emojis)
+                   layout="wide", # use full width of the page
+                   menu_items={
+                       'About': "Exploration of the infection, vaccination rates of measles across the world."
+                   })
 
 # Load data and add it to cache
 @st.cache
-def load_dataframe(path, rows_to_skip):
+def load_dataframe(path, rows_to_skip=0):
     df = pd.read_csv(path, skiprows=rows_to_skip)
     return df
 
@@ -22,13 +39,49 @@ def load_jsonfile(path):
         regions = json.load(response)
     return regions
 
-df_imm_raw = load_dataframe(path="data/raw/children_imm_rates_worldbank.csv", rows_to_skip=4)
+df_imm_raw = load_dataframe(path="../data/children_imm_rates_worldbank.csv", rows_to_skip=4)
 df_imm = deepcopy(df_imm_raw)
+
+#Ansam's data
+per_vacc = load_dataframe(path='../data/API.csv')
+income_country = pd.read_csv('../data/Metadata_Country_API.csv', na_filter=False)
+incidents_100k = pd.read_csv('../data/incidents per 100k.csv')
+num_cases = pd.read_csv('../data/num of measles cases.csv')
+per_vacc_all = pd.read_csv('../data/percentage of children vaccinated.csv')
+vacc_year_country = pd.read_csv('../data/Measles vaccination coverage.csv')
+cases_year_global = pd.read_csv('../data/Measles reported cases and incidence by year.csv', index_col=0)
+first_vacc = pd.read_csv('../data/received first vaccine.csv', na_filter=False)
+second_vacc = pd.read_csv('../data/received second vaccine.csv', na_filter=False)
+with open('../data/countries.geojson') as f:
+    countries = geojson.load(f)
+
+
+#data editing
+per_vacc = per_vacc.dropna(axis=1, how='all')
+incidents_100k = incidents_100k.rename(columns={'VALUE': 'incidents_100k'})
+num_cases = num_cases.rename(columns={'VALUE': 'cases_num'})
+per_vacc_all = per_vacc_all.rename(columns={'VALUE': 'vaccination_per'})
+vacc_year_country['percent'] = (vacc_year_country['DOSES']/vacc_year_country['TARGET_NUMBER'])*100
+vacc_year_country['percent'] = np.where(vacc_year_country['percent']>100.0, 0.0, vacc_year_country['percent'])
+
+
+#mergin 3 data bases into one
+#not used because of a lot of missing data
+cases_and_vacc = pd.merge(pd.merge(incidents_100k, num_cases, on=['YEAR', 'COUNTRY']), per_vacc_all, on=['YEAR', 'COUNTRY'])
+
+#droping the NaN
+cases_and_vacc = cases_and_vacc.dropna()
+
+#convert abbrevations to full names
+list_alpha_3 = [i.alpha_3 for i in list(pycountry.countries)]
+def country_flag(df):
+    if (len(df['COUNTRY'])==3 and df['COUNTRY'] in list_alpha_3):
+        return pycountry.countries.get(alpha_3=df['COUNTRY']).name
+cases_and_vacc['COUNTRY']=cases_and_vacc.apply(country_flag, axis = 1)
+
 
 #regions = load_jsonfile("data/raw/stzh.adm_stadtkreise_a.json")
 
-# Helper functions
-#st.set_page_config(layout="wide")
 
 st.markdown("""
 <style>
@@ -37,8 +90,6 @@ st.markdown("""
 }
 </style>
 """, unsafe_allow_html=True)
-
-# Add title and header
 
 st.title("Measles & Immunization: the Last 40 Years")
 st.header("Exploring the relationship between measles incidence and vaccination levels across the world")
