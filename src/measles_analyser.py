@@ -34,32 +34,32 @@ def load_jsonfile(path):
     return regions
 
 #Elena's data
-df_imm_raw = load_dataframe(path="../data/children_imm_rates_worldbank.csv", rows_to_skip=0)
+df_imm_raw = load_dataframe(path="data/children_imm_rates_worldbank.csv", rows_to_skip=0)
 df_imm = deepcopy(df_imm_raw)
-df_imm_all_raw = load_dataframe(path="../data/Measles vaccination coverage 2.csv", rows_to_skip=0)
+df_imm_all_raw = load_dataframe(path="data/Measles vaccination coverage 2.csv", rows_to_skip=0)
 df_imm_all = deepcopy(df_imm_all_raw)
-df_incidence_raw = load_dataframe(path="../data/Measles reported cases and incidence by year (Incidence rate).csv", rows_to_skip=0)
+df_incidence_raw = load_dataframe(path="data/Measles reported cases and incidence by year (Incidence rate).csv", rows_to_skip=0)
 df_incidence = deepcopy(df_incidence_raw)
 
 #Ansam's data
-per_vacc_raw = load_dataframe(path='../data/API.csv', rows_to_skip=0)
+per_vacc_raw = load_dataframe(path='data/API.csv', rows_to_skip=0)
 per_vacc = deepcopy(per_vacc_raw)
-incidents_100k_raw = load_dataframe(path='../data/incidents per 100k.csv', rows_to_skip=0)
+incidents_100k_raw = load_dataframe(path='data/incidents per 100k.csv', rows_to_skip=0)
 incidents_100k = deepcopy(incidents_100k_raw)
-num_cases_raw = load_dataframe(path='../data/num of measles cases.csv', rows_to_skip=0)
+num_cases_raw = load_dataframe(path='data/num of measles cases.csv', rows_to_skip=0)
 num_cases = deepcopy(num_cases_raw)
-per_vacc_all_raw = load_dataframe(path='../data/percentage of children vaccinated.csv', rows_to_skip=0)
+per_vacc_all_raw = load_dataframe(path='data/percentage of children vaccinated.csv', rows_to_skip=0)
 per_vacc_all = deepcopy(per_vacc_all_raw)
-df_imm_all_raw = load_dataframe(path='../data/Measles vaccination coverage.csv', rows_to_skip=0)
+df_imm_all_raw = load_dataframe(path='data/Measles vaccination coverage.csv', rows_to_skip=0)
 vacc_year_country = deepcopy(df_imm_all_raw)
-cases_year_global_raw = pd.read_csv('../data/Measles reported cases and incidence by year.csv', index_col=0)
+cases_year_global_raw = pd.read_csv('data/Measles reported cases and incidence by year.csv', index_col=0)
 cases_year_global = deepcopy(cases_year_global_raw)
 
 #Zuzana's data
-df_immun_child_world_years_raw = load_dataframe(path="../data/API_SH.IMM.MEAS_DS2_en_csv_v2_3692853.csv", rows_to_skip=0)
+df_immun_child_world_years_raw = load_dataframe(path="data/API_SH.IMM.MEAS_DS2_en_csv_v2_3692853.csv", rows_to_skip=0)
 df_immun_child_world_years = deepcopy(df_immun_child_world_years_raw)
 df_immun_child_world_years.dropna(axis=1, how='all', inplace=True)
-df_immun_child_world_income_raw = load_dataframe(path="../data/Metadata_Country_API_SH.IMM.MEAS_DS2_en_csv_v2_3692853.csv", rows_to_skip=0)
+df_immun_child_world_income_raw = load_dataframe(path="data/Metadata_Country_API_SH.IMM.MEAS_DS2_en_csv_v2_3692853.csv", rows_to_skip=0)
 df_immun_child_world_income = deepcopy(df_immun_child_world_income_raw)
 #df_immun_child_world_income.drop('Unnamed: 5', axis=1, inplace=True)
 
@@ -102,7 +102,7 @@ mcv2 = vacc_year_country.loc[vacc_year_country['ANTIGEN'] == 'MCV2']
 mcv1 = mcv1.sort_values('YEAR')
 mcv2 = mcv2.sort_values('YEAR')
 
-#regions = load_jsonfile("../data/raw/stzh.adm_stadtkreise_a.json")
+#regions = load_jsonfile("data/raw/stzh.adm_stadtkreise_a.json")
 
 st.header("Exploring the relationship between measles incidence and vaccination levels across the world")
 st.subheader("The Measles Map: Disease Incidence and Vaccination Levels")
@@ -312,7 +312,7 @@ col8.text(" ")
 col8.text(" ")
 col8.text(" ")
 col8.text(" ")
-image = Image.open('../data/5591-vaccine_vial_needle-732x549-thumbnail.jpg')
+image = Image.open('data/5591-vaccine_vial_needle-732x549-thumbnail.jpg')
 col8.image(image, use_column_width=True)
 
 st.header(" ")
