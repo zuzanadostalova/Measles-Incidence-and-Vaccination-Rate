@@ -217,6 +217,7 @@ st.write("")
 
 col3, col4 = st.columns(2)
 # Make plot
+year_inc_imm_1_df = year_inc_imm_1_df.sort_values('year')
 if plot_type == "MMR (first dose)":
     inc_imm_scatter = px.scatter(year_inc_imm_1_df, x="COVERAGE", y="INCIDENCE", animation_frame="year",
                      hover_name="Country / Region", range_x=[0, 100])
