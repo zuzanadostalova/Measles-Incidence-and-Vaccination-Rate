@@ -1,4 +1,4 @@
-# Measles & Immunization: the Last 40 Years
+# Measles & Immunization: The Last 40 Years
 
 
 
@@ -8,13 +8,9 @@
 #### -- Project Status: [Active]
 
 ## Project Intro/Objective
-The purpose of this project is to analyze measles data across the world showing the consequences of vaccinations and income. 
-
-### Partner
-* [Name of Partner organization/Government department etc..]
-* Website for partner
-* Partner contact: [Name of Contact]
-* If you do not have a partner leave this section out
+The purpose of this project is to analyze measles data across the world. Our objective is twofold:
+* to investigate the correlation between measles incidence and the vaccination rate 
+* to establish the effect of national income on measles vaccination rate
 
 ### Methods Used
 * Inferential Statistics
@@ -29,35 +25,35 @@ The purpose of this project is to analyze measles data across the world showing 
 * Geojson
 
 ## Project Description
-(Provide more detailed overview of the project.
-Talk a bit about your data sources and what questions and hypothesis you are exploring.
-What specific data analysis/visualization and modelling work are you using to solve the
-problem? What blockers and challenges are you facing?
-Feel free to number or bullet point things here)
+Measles is a highly contagious acute viral respiratory illness accompanied by high fever, cough, coryza, conjunctivitis, 
+and fatigue. Infants, pregnant women, and immunocompromised individuals are at increased risk of severe infection. This 
+measles study is conducted on data collected from World Health Organization, Unicef, and Data World Bank. 
+
+Our hypothesis states:
+* after the introduction of measles vaccination in 1963, the incidence rate of measles has decreased, however, this 
+decrease is not proportional 
+* national income has been affecting the vaccination rate in non-linear way
+
+We analyze the global measles incidence and vaccination rate data with plotly express choropleth map to demonstrate the 
+evolution of the measles infection cases from 1980-2020. To explore nation-wide relationships between the measles immunization
+and vaccination rates, we implement line plots. The influence of the national income on vaccination rate is visualized 
+with a scatter plot and a bar plot to observe how to correlation has been changing since 1980.
+
+The main obstacles are caused by incomplete vaccination rate data provided by different nations. Additionally, the vaccination
+rates are directly affected by economic changes, healthcare access disparities, and vaccination scepticism. In parallel
+with the pertussis (1943), polio (1955), measles (1963), mumps (1967) and rubella (1971) vaccine rollout, 
+the anti-vaccination movement gained traction altering the vaccination rates henceforth.
 
 ## Getting Started
 
 1. Clone this repo (for help see this [tutorial](https://help.github.com/articles/cloning-a-repository/)).
-2. Raw Data is being kept [here](Repo folder containing raw data) within this repo.
-
-    *If using offline data mention that and how they may obtain the data from the froup)*
-
-3. Data processing/transformation scripts are being kept [here](Repo folder containing data processing scripts/notebooks)
-4. etc...
-
-*If your project is well underway and setup is fairly complicated (ie. requires installation of many packages)
-create another "setup.md" file and link to it here*
-
-5. Follow setup [instructions](Link to file)
-
-## Featured Notebooks/Analysis/Deliverables
-* [Notebook/Markdown/Slide Deck Title](link)
-* [Notebook/Markdown/Slide DeckTitle](link)
-* [Blog Post](link)
+2. Raw Data is being kept [here](https://github.com/egronskaya/measles/tree/master/data) within this repo.
+3. Data processing/transformation scripts are being kept [here](https://github.com/egronskaya/measles/tree/master/notebooks)
+4. Follow setup [instructions](https://github.com/egronskaya/measles/blob/master/src/requirements.txt)
 
 
 ## Contributing Members
 
- - [Full Name](https://github.com/[github handle])
- - [Full Name](https://github.com/[github handle])
+ - [Elena Gronskaya](https://github.com/egronskaya)
+ - [Zuzana Dostalova](https://github.com/zuzanadostalova)
  - [Ansam Zedan](https://github.com/ansamz)
