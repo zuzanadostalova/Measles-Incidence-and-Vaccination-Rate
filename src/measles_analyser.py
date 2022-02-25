@@ -42,34 +42,34 @@ def load_jsonfile(path):
     return regions
 
 #Elena's data
-df_imm_raw = load_dataframe(path="/home/ansam/Documents/github/Measles-Group-Project/measles/data/children_imm_rates_worldbank.csv", rows_to_skip=0)
+df_imm_raw = load_dataframe(path="./measles/data/children_imm_rates_worldbank.csv", rows_to_skip=0)
 df_imm = deepcopy(df_imm_raw)
 #df_imm = pd.read_csv('../data/children_imm_rates_worldbank.csv', na_filter=False)
-df_imm_all_raw = load_dataframe(path="/home/ansam/Documents/github/Measles-Group-Project/measles/data/Measles vaccination coverage.csv", rows_to_skip=0)
+df_imm_all_raw = load_dataframe(path="./measles/data/Measles vaccination coverage.csv", rows_to_skip=0)
 df_imm_all = deepcopy(df_imm_all_raw)
-df_incidence_raw = load_dataframe(path="/home/ansam/Documents/github/Measles-Group-Project/measles/data/Measles reported cases and incidence by year (Incidence rate).csv", rows_to_skip=0)
+df_incidence_raw = load_dataframe(path="./measles/data/Measles reported cases and incidence by year (Incidence rate).csv", rows_to_skip=0)
 df_incidence = deepcopy(df_incidence_raw)
 
 #Ansam's data
-per_vacc_raw = load_dataframe(path='/home/ansam/Documents/github/Measles-Group-Project/measles/data/API.csv', rows_to_skip=0)
+per_vacc_raw = load_dataframe(path='./measles/data/API.csv', rows_to_skip=0)
 per_vacc = deepcopy(per_vacc_raw)
-incidents_100k_raw = load_dataframe(path='/home/ansam/Documents/github/Measles-Group-Project/measles/data/incidents per 100k.csv', rows_to_skip=0)
+incidents_100k_raw = load_dataframe(path='./measles/data/incidents per 100k.csv', rows_to_skip=0)
 incidents_100k = deepcopy(incidents_100k_raw)
-num_cases_raw = load_dataframe(path='/home/ansam/Documents/github/Measles-Group-Project/measles/data/num of measles cases.csv', rows_to_skip=0)
+num_cases_raw = load_dataframe(path='./measles/data/num of measles cases.csv', rows_to_skip=0)
 num_cases = deepcopy(num_cases_raw)
-per_vacc_all_raw = load_dataframe(path='/home/ansam/Documents/github/Measles-Group-Project/measles/data/percentage of children vaccinated.csv', rows_to_skip=0)
+per_vacc_all_raw = load_dataframe(path='./measles/data/percentage of children vaccinated.csv', rows_to_skip=0)
 per_vacc_all = deepcopy(per_vacc_all_raw)
-vacc_year_country_raw = load_dataframe(path='/home/ansam/Documents/github/Measles-Group-Project/measles/data/Measles vaccination coverage.csv', rows_to_skip=0)
+vacc_year_country_raw = load_dataframe(path='./measles/data/Measles vaccination coverage.csv', rows_to_skip=0)
 vacc_year_country = deepcopy(vacc_year_country_raw)
-cases_year_global_raw = pd.read_csv('/home/ansam/Documents/github/Measles-Group-Project/measles/data/Measles reported cases and incidence by year.csv', index_col=0)
+cases_year_global_raw = pd.read_csv('./measles/data/Measles reported cases and incidence by year.csv', index_col=0)
 cases_year_global = deepcopy(cases_year_global_raw)
 
 #Zuzana's data
-df_immun_child_world_years_raw = load_dataframe(path="/home/ansam/Documents/github/Measles-Group-Project/measles/data/API_SH.IMM.MEAS_DS2_en_csv_v2_3692853.csv", rows_to_skip=0)
+df_immun_child_world_years_raw = load_dataframe(path="./measles/data/API_SH.IMM.MEAS_DS2_en_csv_v2_3692853.csv", rows_to_skip=0)
 df_immun_child_world_years = deepcopy(df_immun_child_world_years_raw)
 #df_immun_child_world_years.describe(include='all')
 df_immun_child_world_years.dropna(axis=1, how='all', inplace=True)
-df_immun_child_world_income_raw = load_dataframe(path="/home/ansam/Documents/github/Measles-Group-Project/measles/data/Metadata_Country_API_SH.IMM.MEAS_DS2_en_csv_v2_3692853.csv", rows_to_skip=0)
+df_immun_child_world_income_raw = load_dataframe(path="./measles/data/Metadata_Country_API_SH.IMM.MEAS_DS2_en_csv_v2_3692853.csv", rows_to_skip=0)
 df_immun_child_world_income = deepcopy(df_immun_child_world_income_raw)
 #df_immun_child_world_income.drop('Unnamed: 5', axis=1, inplace=True)
 
@@ -390,7 +390,7 @@ col8.plotly_chart(vac_inc_fig)
 
 #MCv1 and 2 line
 anti_year = vacc_year_country.groupby(['YEAR', 'ANTIGEN']).percent.mean().reset_index()
-fig5 = px.line(anti_year, x='YEAR', y='percent', color='ANTIGEN', markers=True, title='Average coverage % for different vaccine antigens',
+fig5 = px.line(anti_year, x='YEAR', y='percent', color='ANTIGEN', markers=True, title='Global average coverage % for different vaccine antigens',
               labels={
                      "YEAR": "Year",
                      "percent": "Coverage %",
