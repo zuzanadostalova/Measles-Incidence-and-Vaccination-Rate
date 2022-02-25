@@ -390,7 +390,7 @@ col8.plotly_chart(vac_inc_fig)
 
 #MCv1 and 2 line
 anti_year = vacc_year_country.groupby(['YEAR', 'ANTIGEN']).percent.mean().reset_index()
-fig5 = px.line(anti_year, x='YEAR', y='percent', color='ANTIGEN', markers=True, title='Average coverage % for different vaccine antigens',
+fig5 = px.line(anti_year, x='YEAR', y='percent', color='ANTIGEN', markers=True, title='Global average coverage % for different vaccine antigens',
               labels={
                      "YEAR": "Year",
                      "percent": "Coverage %",
