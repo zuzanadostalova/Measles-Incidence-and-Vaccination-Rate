@@ -42,34 +42,34 @@ def load_jsonfile(path):
     return regions
 
 #Elena's data
-df_imm_raw = load_dataframe(path="./measles/data/children_imm_rates_worldbank.csv", rows_to_skip=0)
+df_imm_raw = load_dataframe(path="/home/ansam/Documents/github/Measles-Group-Project/measles/data/children_imm_rates_worldbank.csv", rows_to_skip=0)
 df_imm = deepcopy(df_imm_raw)
 #df_imm = pd.read_csv('../data/children_imm_rates_worldbank.csv', na_filter=False)
-df_imm_all_raw = load_dataframe(path="./measles/data/Measles vaccination coverage.csv", rows_to_skip=0)
+df_imm_all_raw = load_dataframe(path="/home/ansam/Documents/github/Measles-Group-Project/measles/data/Measles vaccination coverage.csv", rows_to_skip=0)
 df_imm_all = deepcopy(df_imm_all_raw)
-df_incidence_raw = load_dataframe(path="./measles/data/Measles reported cases and incidence by year (Incidence rate).csv", rows_to_skip=0)
+df_incidence_raw = load_dataframe(path="/home/ansam/Documents/github/Measles-Group-Project/measles/data/Measles reported cases and incidence by year (Incidence rate).csv", rows_to_skip=0)
 df_incidence = deepcopy(df_incidence_raw)
 
 #Ansam's data
-per_vacc_raw = load_dataframe(path='./measles/data/API.csv', rows_to_skip=0)
+per_vacc_raw = load_dataframe(path='/home/ansam/Documents/github/Measles-Group-Project/measles/data/API.csv', rows_to_skip=0)
 per_vacc = deepcopy(per_vacc_raw)
-incidents_100k_raw = load_dataframe(path='./measles/data/incidents per 100k.csv', rows_to_skip=0)
+incidents_100k_raw = load_dataframe(path='/home/ansam/Documents/github/Measles-Group-Project/measles/data/incidents per 100k.csv', rows_to_skip=0)
 incidents_100k = deepcopy(incidents_100k_raw)
-num_cases_raw = load_dataframe(path='./measles/data/num of measles cases.csv', rows_to_skip=0)
+num_cases_raw = load_dataframe(path='/home/ansam/Documents/github/Measles-Group-Project/measles/data/num of measles cases.csv', rows_to_skip=0)
 num_cases = deepcopy(num_cases_raw)
-per_vacc_all_raw = load_dataframe(path='./measles/data/percentage of children vaccinated.csv', rows_to_skip=0)
+per_vacc_all_raw = load_dataframe(path='/home/ansam/Documents/github/Measles-Group-Project/measles/data/percentage of children vaccinated.csv', rows_to_skip=0)
 per_vacc_all = deepcopy(per_vacc_all_raw)
-vacc_year_country_raw = load_dataframe(path='./measles/data/Measles vaccination coverage.csv', rows_to_skip=0)
+vacc_year_country_raw = load_dataframe(path='/home/ansam/Documents/github/Measles-Group-Project/measles/data/Measles vaccination coverage.csv', rows_to_skip=0)
 vacc_year_country = deepcopy(vacc_year_country_raw)
-cases_year_global_raw = pd.read_csv('./measles/data/Measles reported cases and incidence by year.csv', index_col=0)
+cases_year_global_raw = pd.read_csv('/home/ansam/Documents/github/Measles-Group-Project/measles/data/Measles reported cases and incidence by year.csv', index_col=0)
 cases_year_global = deepcopy(cases_year_global_raw)
 
 #Zuzana's data
-df_immun_child_world_years_raw = load_dataframe(path="./measles/data/API_SH.IMM.MEAS_DS2_en_csv_v2_3692853.csv", rows_to_skip=0)
+df_immun_child_world_years_raw = load_dataframe(path="/home/ansam/Documents/github/Measles-Group-Project/measles/data/API_SH.IMM.MEAS_DS2_en_csv_v2_3692853.csv", rows_to_skip=0)
 df_immun_child_world_years = deepcopy(df_immun_child_world_years_raw)
 #df_immun_child_world_years.describe(include='all')
 df_immun_child_world_years.dropna(axis=1, how='all', inplace=True)
-df_immun_child_world_income_raw = load_dataframe(path="./measles/data/Metadata_Country_API_SH.IMM.MEAS_DS2_en_csv_v2_3692853.csv", rows_to_skip=0)
+df_immun_child_world_income_raw = load_dataframe(path="/home/ansam/Documents/github/Measles-Group-Project/measles/data/Metadata_Country_API_SH.IMM.MEAS_DS2_en_csv_v2_3692853.csv", rows_to_skip=0)
 df_immun_child_world_income = deepcopy(df_immun_child_world_income_raw)
 #df_immun_child_world_income.drop('Unnamed: 5', axis=1, inplace=True)
 
@@ -206,16 +206,17 @@ year_inc_imm_2_df.year = year_inc_imm_2_df.year.astype(int)
 year_inc_imm_2_df.year = year_inc_imm_2_df.year.sort_values()
 
 # Plot figure
-left_column, right_column = st.columns(2)
+left_column, right_column, _ , _= st.columns(4)
 # Enable selection of antigen type (MMR1 or MMR2) (Widgets: radio button)
 plot_types = ["MMR (first dose)", "MMR (second dose)"]
 plot_type = left_column.radio("Choose Vaccine Dose", plot_types)
 
 # Enable selection of whether to show outliers
 hide_outliers = right_column.checkbox("Hide outliers")
-st.write("")
 
 col3, col4 = st.columns(2)
+
+col3.write(" ")
 # Make plot
 year_inc_imm_1_df = year_inc_imm_1_df.sort_values('year')
 if plot_type == "MMR (first dose)":
@@ -277,11 +278,11 @@ st.caption('Measles outbreak in 2019 in the region of Samoa and New Zealand')
 st.write("[link](https://www.mfat.govt.nz/en/countries-and-regions/australia-and-pacific/niue/new-zealand-high-commission-to-niue/about-niue/)")
 st.write("[link](https://en.wikipedia.org/wiki/2019_Samoa_measles_outbreak)")
 
-
 st.subheader("Child Measles Vaccination Levels from 1980 to 2020")
 # Enable selection of countries for plot (Widgets: selectbox)
+bar, _ = st.columns(2)
 countries = sorted(pd.unique(df_imm['Country Name']))
-country = st.selectbox("Choose a Country", countries)
+country = bar.selectbox("Choose a Country", countries)
 
 col6, col7, col8= st.columns(3)
 # Process country data
@@ -325,9 +326,10 @@ col8.image(image, use_column_width=True)
 st.header(" ")
 st.subheader("Overall Measles Vaccination Levels and Disease Incidence from 1980 to 2020")
 
+bar2, _ = st.columns(2)
 # Enable selection of countries for plot (Widgets: selectbox)
 countries = sorted(pd.unique(df_incidence['Country / Region']))
-country = st.selectbox("Choose a Country", countries)
+country = bar2.selectbox("Choose a Country", countries)
 
 col8, col9= st.columns(2)
 
