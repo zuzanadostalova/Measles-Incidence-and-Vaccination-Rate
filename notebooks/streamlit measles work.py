@@ -17,6 +17,7 @@ import json
 from copy import deepcopy
 import geojson
 import pycountry #conda install -c conda-forge pycountry
+from PIL import Image
 
 # Add title and header
 #page configuration
@@ -51,18 +52,27 @@ df_incidence_raw = load_dataframe(path="/home/ansam/Documents/github/Measles-Gro
 df_incidence = deepcopy(df_incidence_raw)
 
 #Ansam's data
-per_vacc = pd.read_csv('/home/ansam/Documents/github/Measles-Group-Project/measles/data/API.csv')
-income_country = pd.read_csv('/home/ansam/Documents/github/Measles-Group-Project/measles/data/API.csv', na_filter=False)
-incidents_100k = pd.read_csv('/home/ansam/Documents/github/Measles-Group-Project/measles/data/incidents per 100k.csv')
-num_cases = pd.read_csv('/home/ansam/Documents/github/Measles-Group-Project/measles/data/num of measles cases.csv')
-per_vacc_all = pd.read_csv('/home/ansam/Documents/github/Measles-Group-Project/measles/data/percentage of children vaccinated.csv')
-vacc_year_country = pd.read_csv('/home/ansam/Documents/github/Measles-Group-Project/measles/data/Measles vaccination coverage.csv')
-cases_year_global = pd.read_csv('/home/ansam/Documents/github/Measles-Group-Project/measles/data/Measles reported cases and incidence by year.csv', index_col=0)
-first_vacc = pd.read_csv('/home/ansam/Documents/github/Measles-Group-Project/measles/data/received first vaccine.csv', na_filter=False)
-second_vacc = pd.read_csv('/home/ansam/Documents/github/Measles-Group-Project/measles/data/received second vaccine.csv', na_filter=False)
-with open('/home/ansam/Documents/github/Measles-Group-Project/measles/data/countries.geojson') as f:
-    countries_g = geojson.load(f)
+per_vacc_raw = load_dataframe(path='/home/ansam/Documents/github/Measles-Group-Project/measles/data/API.csv', rows_to_skip=0)
+per_vacc = deepcopy(per_vacc_raw)
+incidents_100k_raw = load_dataframe(path='/home/ansam/Documents/github/Measles-Group-Project/measles/data/incidents per 100k.csv', rows_to_skip=0)
+incidents_100k = deepcopy(incidents_100k_raw)
+num_cases_raw = load_dataframe(path='/home/ansam/Documents/github/Measles-Group-Project/measles/data/num of measles cases.csv', rows_to_skip=0)
+num_cases = deepcopy(num_cases_raw)
+per_vacc_all_raw = load_dataframe(path='/home/ansam/Documents/github/Measles-Group-Project/measles/data/percentage of children vaccinated.csv', rows_to_skip=0)
+per_vacc_all = deepcopy(per_vacc_all_raw)
+vacc_year_country_raw = load_dataframe(path='/home/ansam/Documents/github/Measles-Group-Project/measles/data/Measles vaccination coverage.csv', rows_to_skip=0)
+vacc_year_country = deepcopy(vacc_year_country_raw)
+cases_year_global_raw = pd.read_csv('/home/ansam/Documents/github/Measles-Group-Project/measles/data/Measles reported cases and incidence by year.csv', index_col=0)
+cases_year_global = deepcopy(cases_year_global_raw)
 
+#Zuzana's data
+df_immun_child_world_years_raw = load_dataframe(path="/home/ansam/Documents/github/Measles-Group-Project/measles/data/API_SH.IMM.MEAS_DS2_en_csv_v2_3692853.csv", rows_to_skip=0)
+df_immun_child_world_years = deepcopy(df_immun_child_world_years_raw)
+#df_immun_child_world_years.describe(include='all')
+df_immun_child_world_years.dropna(axis=1, how='all', inplace=True)
+df_immun_child_world_income_raw = load_dataframe(path="/home/ansam/Documents/github/Measles-Group-Project/measles/data/Metadata_Country_API_SH.IMM.MEAS_DS2_en_csv_v2_3692853.csv", rows_to_skip=0)
+df_immun_child_world_income = deepcopy(df_immun_child_world_income_raw)
+#df_immun_child_world_income.drop('Unnamed: 5', axis=1, inplace=True)
 
 #data editing
 per_vacc = per_vacc.dropna(axis=1, how='all')
@@ -71,6 +81,16 @@ num_cases = num_cases.rename(columns={'VALUE': 'cases_num'})
 per_vacc_all = per_vacc_all.rename(columns={'VALUE': 'vaccination_per'})
 vacc_year_country['percent'] = (vacc_year_country['DOSES']/vacc_year_country['TARGET_NUMBER'])*100
 vacc_year_country['percent'] = np.where(vacc_year_country['percent']>100.0, 0.0, vacc_year_country['percent'])
+df_combined_immun_child_world_income = pd.merge(df_immun_child_world_years, df_immun_child_world_income, how="inner", on=["Country Code"])
+#alL_tables = pd.merge(df_immun_child_world_years, df_immun_child_world_income, how="outer", on=["Country Code"])
+#alL_tables[~alL_tables['Country Code'].isin(df_combined_immun_child_world_income["Country Code"].to_list())]
+df_combined_immun_child_world_income['id'] = df_combined_immun_child_world_income.index
+df_combined_immun_child_world_income.columns = [ f'value_{x}' if x.isdigit()  else x for x in df_combined_immun_child_world_income.columns]
+long_format_df = pd.wide_to_long(df_combined_immun_child_world_income, stubnames = 'value_', i = 'id', j='year')
+wk_df = long_format_df.reset_index().drop('id', axis=1)
+final_vax_rate_income_df = wk_df.dropna(axis='rows')
+check_verity_of_percentage = final_vax_rate_income_df[(final_vax_rate_income_df['value_']>100)]
+final_vax_rate_income_df['IncomeGroupValue'] = final_vax_rate_income_df['IncomeGroup'].replace({"High income": 4, "Upper middle income": 3, "Lower middle income": 2, "Low income": 1})
 
 
 #mergin 3 data bases into one
@@ -88,17 +108,20 @@ def country_flag(df):
 cases_and_vacc['COUNTRY']=cases_and_vacc.apply(country_flag, axis = 1)
 
 
+mcv1 = vacc_year_country.loc[vacc_year_country['ANTIGEN'] == 'MCV1']
+mcv2 = vacc_year_country.loc[vacc_year_country['ANTIGEN'] == 'MCV2']
+mcv1 = mcv1.sort_values('YEAR')
+mcv2 = mcv2.sort_values('YEAR')
+
 #regions = load_jsonfile("data/raw/stzh.adm_stadtkreise_a.json")
 
 st.header("Exploring the relationship between measles incidence and vaccination levels across the world")
-
 st.subheader("The Measles Map: Disease Incidence and Vaccination Levels")
 
-st.subheader("Number Of Cases around the world in different years")
+show_labels = st.radio(label='Choose type of Antigen vaccination:', options=['MCV1', 'MCV2'])
+col1, col2= st.columns(2)
 
-# figures aligned in one row
-col1, col2 = st.columns(2)
-
+#first map
 cases_and_vacc = cases_and_vacc.sort_values('YEAR')
 cases_and_vacc['YEAR'] = cases_and_vacc['YEAR'].astype(int)
 fig = px.choropleth(cases_and_vacc, locations=cases_and_vacc['COUNTRY'], locationmode='country names', color = cases_and_vacc['cases_num'],
@@ -113,6 +136,43 @@ fig.update_layout(
     )
 )
 col1.plotly_chart(fig)
+
+#second map
+fig2 = px.choropleth(mcv1, locations=mcv1['NAME'], locationmode='country names', color = mcv1['percent'],
+              hover_name=mcv1['NAME'], animation_frame=mcv1['YEAR'],
+              color_continuous_scale=px.colors.sequential.RdBu, projection='natural earth', width=900, height=500, labels={"percent":"Coverage% of vaccinated"})
+fig2.update_layout(
+    title_text='Coverage in % of vaccinated with MCV1 per country through the years',
+    geo=dict(
+        showframe=False,
+        showcoastlines=False,
+        projection_type='equirectangular'
+    )
+)
+
+fig3 = px.choropleth(mcv2, locations=mcv2['NAME'], locationmode='country names', color = mcv2['percent'],
+              hover_name=mcv2['NAME'], animation_frame=mcv2['YEAR'],
+              color_continuous_scale=px.colors.sequential.RdBu, projection='natural earth', width=900, height=500, labels={"percent":"Coverage % of vaccinated"})
+fig3.update_layout(
+    title_text='Coverage in % of vaccinated with MCV2 per country through the years',
+    geo=dict(
+        showframe=False,
+        showcoastlines=False,
+        projection_type='equirectangular'
+    )
+)
+
+if show_labels == "MCV1":
+    col2.plotly_chart(fig2)
+elif show_labels == "MCV2":
+    col2.plotly_chart(fig3)
+
+#HERE TO DO TO DO TO DO
+#elena's latest graph
+st.subheader("Elema's graph and global")
+#col3, col4= st.columns(2)
+#col3.plotly_vhart('iinsert name here')
+
 
 #another infections bar figure
 cases_year_global2 =cases_year_global.T.sort_index()
@@ -140,12 +200,15 @@ fig4.add_annotation(x=19, y=873022,
         bgcolor="#ff7f0e",
         opacity=0.8)
 
-col2.plotly_chart(fig4)
+st.plotly_chart(fig4)
 
-st.header(" ")
+#adding resources about outliers
+st.caption('Measles outbreak in Mongolia in 2016')
+st.write("[link](https://www.who.int/mongolia/news/detail/04-05-2016-measles-outbreak-in-mongolia-faqs)")
+
+
 st.subheader("Child Measles Vaccination Levels from 1980 to 2020")
-colg, colt = st.columns(2)
-
+col6, col7= st.columns(2)
 # Enable selection of countries for plot (Widgets: selectbox)
 countries = sorted(pd.unique(df_imm['Country Name']))
 country = st.selectbox("Choose a Country", countries)
@@ -158,7 +221,6 @@ country_df = country_df.T.rename(columns={0: 'imm_rate'})
 df_subset = country_df.loc['1980':'2020', 'imm_rate']
 
 # Plot vaccination levels per country
-
 rate_years_fig = go.Figure(data=go.Scatter(x=df_subset.index.astype('int'),
                                            y=df_subset.values,
                                            line={"color": "royalblue", "width": 2},
@@ -175,64 +237,15 @@ rate_years_fig.update_layout(
     title={'text': "Percent of Children 12-23 Months of Age Immunized Against Measles in "+ country, "font": {"size": 16}, "x":0.5}
 )
 
-colg.plotly_chart(rate_years_fig)
+col6.plotly_chart(rate_years_fig)
 
-if st.checkbox("Check the box if you are interested in the table"):
-    st.subheader("This is the country's dataset:")
-    colt.dataframe(data=df_subset)
-
-#plots MCV1 and MCV1
-
-mcv = st.selectbox('Choose type of Antigen vaccination:', ['MCV1', 'MCV2'])
-col3, col4 = st.columns(2)
-
-mcv1 = vacc_year_country.loc[vacc_year_country['ANTIGEN'] == 'MCV1']
-mcv2 = vacc_year_country.loc[vacc_year_country['ANTIGEN'] == 'MCV2']
-mcv1 = mcv1.sort_values('YEAR')
-mcv2 = mcv2.sort_values('YEAR')
-
-fig2 = px.choropleth(mcv1, locations=mcv1['NAME'], locationmode='country names', color = mcv1['percent'],
-              hover_name=mcv1['NAME'], animation_frame=mcv1['YEAR'],
-              color_continuous_scale=px.colors.sequential.RdBu, projection='natural earth', width=900, height=500, labels={"percent":"Coverage% of vaccinated"})
-fig2.update_layout(
-    title_text='Coverage in % of vaccinated with MCV1 per country through the years',
-    geo=dict(
-        showframe=False,
-        showcoastlines=False,
-        projection_type='equirectangular'
-    )
-)
-
-fig3 = px.choropleth(mcv2, locations=mcv2['NAME'], locationmode='country names', color = mcv2['percent'],
-              hover_name=mcv2['NAME'], animation_frame=mcv2['YEAR'],
-              color_continuous_scale=px.colors.sequential.RdBu, projection='natural earth', width=900, height=500, labels={"percent":"Coverage % of vaccinated"})
-fig3.update_layout(
-    title_text='Coverage in % of vaccinated with MCV2 per country through the years',
-    geo=dict(
-        showframe=False,
-        showcoastlines=False,
-        projection_type='equirectangular'
-    )
-)
-
-if mcv == "MCV1":
-    col3.plotly_chart(fig2)
-elif mcv == "MCV2":
-    col3.plotly_chart(fig3)
-
-anti_year = vacc_year_country.groupby(['YEAR', 'ANTIGEN']).percent.mean().reset_index()
-fig5 = px.line(anti_year, x='YEAR', y='percent', color='ANTIGEN', markers=True, title='Average coverage % for different vaccine antigens',
-              labels={
-                     "YEAR": "Year",
-                     "percent": "Coverage %",
-                     "ANTIGEN": "Antigens"
-                 },
-              )
-col4.plotly_chart(fig5)
+#add image
+image = Image.open('/home/ansam/Documents/github/Measles-Group-Project/measles/data/5cd5ed5f77c3e.image.jpg')
+col7.image(image, use_column_width=True)
 
 st.header(" ")
 st.subheader("Overall Measles Vaccination Levels and Disease Incidence from 1980 to 2020")
-
+col8, col9= st.columns(2)
 # Enable selection of countries for plot (Widgets: selectbox)
 countries = sorted(pd.unique(df_incidence['Country / Region']))
 country = st.selectbox("Choose a Country", countries)
@@ -284,19 +297,62 @@ vac_inc_fig.add_trace(
                mode="lines+markers",
                name="Measles incidence"),
     secondary_y=True)
-
 # Add figure title
 vac_inc_fig.update_layout(title={'text': "Measles Immunization Level and Disease Incidence in "+ country, "font": {"size": 16}, "x":0.5})
-
 # Set x-axis title and range
 vac_inc_fig.update_xaxes(title_text="Year", range=[1980,2020])
-
 # Set y-axes titles and ranges
 vac_inc_fig.update_yaxes(title_text="Vaccination level [%]", secondary_y=False, range=[0,100])
 vac_inc_fig.update_yaxes(title_text="Incidence", secondary_y=True)
 
-st.plotly_chart(vac_inc_fig)
+col8.plotly_chart(vac_inc_fig)
+
+#MCv1 and 2 line
+anti_year = vacc_year_country.groupby(['YEAR', 'ANTIGEN']).percent.mean().reset_index()
+fig5 = px.line(anti_year, x='YEAR', y='percent', color='ANTIGEN', markers=True, title='Average coverage % for different vaccine antigens',
+              labels={
+                     "YEAR": "Year",
+                     "percent": "Coverage %",
+                     "ANTIGEN": "Antigens"
+                 },
+              )
+col9.plotly_chart(fig5)
+
 
 st.header(" ")
-st.subheader("Vaccination Rates and National Income")
-st.text("Zuzana's maps here")
+st.subheader("Measles vaccination rate based on income group")
+
+fig_1_1 = px.scatter(final_vax_rate_income_df, y="value_", x="year", opacity=0.7, color="IncomeGroupValue", hover_name="Country Name")
+fig_1_1.update_xaxes(dtick=1)
+fig_1_1.update_yaxes(dtick=5)
+fig_1_1.update_traces(marker={'size': 15})
+fig_1_1.update_layout({
+    'yaxis': {"title": "Vaccination rates (%)"},
+    "xaxis": {"title": "Time evolution"},
+    "title": f"Measles vaccination rates in different countries based on income group: 12-23 months old children"
+    })
+fig_1_1.update_coloraxes(colorbar={
+    "title": "Income group from the highest income to the lowest",
+    "thicknessmode": "pixels",
+    "thickness": 50,
+    },colorscale= "Inferno")
+fig_1_1.update_layout(width=1600, height=600)
+
+st.plotly_chart(fig_1_1)
+
+st.header(" ")
+st.subheader("Measles vaccination rates in different countries based on income group: 12-23 months old children")
+
+final_vax_rate_income_df_sorted = final_vax_rate_income_df.sort_values(by="IncomeGroupValue", ascending=False)
+fig_1_2 = px.bar(final_vax_rate_income_df_sorted, x='year', y="value_", color="IncomeGroup",
+             hover_data=["Country Name"],
+             title='Measles vaccination rates in different countries based on income group: 12-23 months old children')
+fig_1_2.update_xaxes(tick0=0, dtick=1)
+fig_1_2.update_layout({
+    'yaxis': {"title": "Vaccination count"},
+    "xaxis": {"title": "Time evolution"},
+    "title": "Measles vaccination rates in different countries based on income group: 12-23 months old children"
+    })
+fig_1_2.update_layout(width=1600, height=600)
+
+st.plotly_chart(fig_1_2)

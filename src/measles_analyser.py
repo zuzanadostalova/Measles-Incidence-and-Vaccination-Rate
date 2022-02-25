@@ -17,6 +17,7 @@ import json
 from copy import deepcopy
 import geojson
 import pycountry #conda install -c conda-forge pycountry
+from PIL import Image
 
 # Add title and header
 #page configuration
@@ -71,7 +72,7 @@ df_immun_child_world_years = deepcopy(df_immun_child_world_years_raw)
 df_immun_child_world_years.dropna(axis=1, how='all', inplace=True)
 df_immun_child_world_income_raw = load_dataframe(path="/home/ansam/Documents/github/Measles-Group-Project/measles/data/Metadata_Country_API_SH.IMM.MEAS_DS2_en_csv_v2_3692853.csv", rows_to_skip=0)
 df_immun_child_world_income = deepcopy(df_immun_child_world_income_raw)
-df_immun_child_world_income.drop('Unnamed: 5', axis=1, inplace=True)
+#df_immun_child_world_income.drop('Unnamed: 5', axis=1, inplace=True)
 
 #data editing
 per_vacc = per_vacc.dropna(axis=1, how='all')
@@ -107,17 +108,20 @@ def country_flag(df):
 cases_and_vacc['COUNTRY']=cases_and_vacc.apply(country_flag, axis = 1)
 
 
+mcv1 = vacc_year_country.loc[vacc_year_country['ANTIGEN'] == 'MCV1']
+mcv2 = vacc_year_country.loc[vacc_year_country['ANTIGEN'] == 'MCV2']
+mcv1 = mcv1.sort_values('YEAR')
+mcv2 = mcv2.sort_values('YEAR')
+
 #regions = load_jsonfile("data/raw/stzh.adm_stadtkreise_a.json")
 
 st.header("Exploring the relationship between measles incidence and vaccination levels across the world")
-
 st.subheader("The Measles Map: Disease Incidence and Vaccination Levels")
 
-st.subheader("Number Of Cases around the world in different years")
+show_labels = st.radio(label='Choose type of Antigen vaccination:', options=['MCV1', 'MCV2'])
+col1, col2= st.columns(2)
 
-# figures aligned in one row
-col1, col2 = st.columns(2)
-
+#first map
 cases_and_vacc = cases_and_vacc.sort_values('YEAR')
 cases_and_vacc['YEAR'] = cases_and_vacc['YEAR'].astype(int)
 fig = px.choropleth(cases_and_vacc, locations=cases_and_vacc['COUNTRY'], locationmode='country names', color = cases_and_vacc['cases_num'],
@@ -132,6 +136,109 @@ fig.update_layout(
     )
 )
 col1.plotly_chart(fig)
+
+#second map
+fig2 = px.choropleth(mcv1, locations=mcv1['NAME'], locationmode='country names', color = mcv1['percent'],
+              hover_name=mcv1['NAME'], animation_frame=mcv1['YEAR'],
+              color_continuous_scale=px.colors.sequential.RdBu, projection='natural earth', width=900, height=500, labels={"percent":"Coverage% of vaccinated"})
+fig2.update_layout(
+    title_text='Coverage in % of vaccinated with MCV1 per country through the years',
+    geo=dict(
+        showframe=False,
+        showcoastlines=False,
+        projection_type='equirectangular'
+    )
+)
+
+fig3 = px.choropleth(mcv2, locations=mcv2['NAME'], locationmode='country names', color = mcv2['percent'],
+              hover_name=mcv2['NAME'], animation_frame=mcv2['YEAR'],
+              color_continuous_scale=px.colors.sequential.RdBu, projection='natural earth', width=900, height=500, labels={"percent":"Coverage % of vaccinated"})
+fig3.update_layout(
+    title_text='Coverage in % of vaccinated with MCV2 per country through the years',
+    geo=dict(
+        showframe=False,
+        showcoastlines=False,
+        projection_type='equirectangular'
+    )
+)
+
+if show_labels == "MCV1":
+    col2.plotly_chart(fig2)
+elif show_labels == "MCV2":
+    col2.plotly_chart(fig3)
+
+
+st.header(" ")
+st.subheader("Country Incidence of Measles vs Vaccination Rate")
+
+# filter incidence df
+year_inc_df = df_incidence.copy()
+year_inc_df.drop(columns = ['Disease','Denominator'], inplace = True)
+# melt incidence df
+melted_inc_df = pd.melt(year_inc_df, id_vars=['Country / Region'], value_vars=[str(x) for x in list(range(1980, 2021))])
+melted_inc_df.rename(columns = {'variable':'year','value':'INCIDENCE'}, inplace = True)
+melted_inc_df.sort_values(by='Country / Region', inplace = True)
+melted_inc_df.year = melted_inc_df.year.astype(int)
+# filter immunization df (MCV1)
+year_imm_1_df = df_imm_all[(df_imm_all['ANTIGEN']=='MCV1')&(df_imm_all['COVERAGE_CATEGORY']=='ADMIN')].copy()
+year_imm_1_df = year_imm_1_df[['NAME','COVERAGE','YEAR']]
+# merge
+year_inc_imm_1_df = melted_inc_df.merge(year_imm_1_df, how='outer', left_on=['Country / Region','year'], right_on=['NAME','YEAR'])
+year_inc_imm_1_df.drop(columns = ['NAME','YEAR'], inplace = True)
+year_inc_imm_1_df.dropna(subset=['Country / Region'], inplace = True)
+# process data
+year_inc_imm_1_df.INCIDENCE = year_inc_imm_1_df.INCIDENCE.astype(str)
+year_inc_imm_1_df.INCIDENCE = year_inc_imm_1_df.apply(lambda row: row.INCIDENCE.replace(',', ''), axis=1)
+year_inc_imm_1_df.INCIDENCE = year_inc_imm_1_df.INCIDENCE.astype(float).sort_values()
+year_inc_imm_1_df.year = year_inc_imm_1_df.year.astype(int)
+year_inc_imm_1_df.year = year_inc_imm_1_df.year.sort_values()
+# filter immunization df (MCV2)
+year_imm_2_df = df_imm_all[(df_imm_all['ANTIGEN']=='MCV2')&(df_imm_all['COVERAGE_CATEGORY']=='ADMIN')].copy()
+year_imm_2_df = year_imm_2_df[['NAME','COVERAGE','YEAR']]
+# merge
+year_inc_imm_2_df = melted_inc_df.merge(year_imm_2_df, how='outer', left_on=['Country / Region','year'], right_on=['NAME','YEAR'])
+year_inc_imm_2_df.drop(columns = ['NAME','YEAR'], inplace = True)
+year_inc_imm_2_df.dropna(subset=['Country / Region'], inplace = True)
+# process data
+year_inc_imm_2_df.INCIDENCE = year_inc_imm_2_df.INCIDENCE.astype(str)
+year_inc_imm_2_df.INCIDENCE = year_inc_imm_2_df.apply(lambda row: row.INCIDENCE.replace(',', ''), axis=1)
+year_inc_imm_2_df.INCIDENCE = year_inc_imm_2_df.INCIDENCE.astype(float).sort_values()
+year_inc_imm_2_df.year = year_inc_imm_2_df.year.astype(int)
+year_inc_imm_2_df.year = year_inc_imm_2_df.year.sort_values()
+
+# Plot figure
+left_column, right_column = st.columns(2)
+# Enable selection of antigen type (MMR1 or MMR2) (Widgets: radio button)
+plot_types = ["MMR (first dose)", "MMR (second dose)"]
+plot_type = left_column.radio("Choose Vaccine Dose", plot_types)
+
+# Enable selection of whether to show outliers
+hide_outliers = right_column.checkbox("Hide outliers")
+st.write("")
+
+col3, col4 = st.columns(2)
+# Make plot
+if plot_type == "MMR (first dose)":
+    inc_imm_scatter = px.scatter(year_inc_imm_1_df, x="COVERAGE", y="INCIDENCE", animation_frame="year",
+                     hover_name="Country / Region", range_x=[0, 100])
+    max_y = np.nanpercentile(year_inc_imm_1_df.INCIDENCE, 95)
+else:
+    inc_imm_scatter = px.scatter(year_inc_imm_2_df, x="COVERAGE", y="INCIDENCE", animation_frame="year",
+                     hover_name="Country / Region", range_x=[0, 100])
+    max_y = np.nanpercentile(year_inc_imm_2_df.INCIDENCE, 95)
+
+# Enable selection of whether to show outliers
+if hide_outliers:
+    inc_imm_scatter.update_yaxes(range=[0, max_y])
+
+# Update the layout
+inc_imm_scatter.update_layout(
+    xaxis={"title": {"text": "Immunization Level [%]", "font": {"size": 12}}},
+    yaxis={"title": {"text": "Measles Incidence [per million]", "font": {"size": 12}}},
+    title={'text': "Country Incidence of Measles and Vaccination Rate", "font": {"size": 16}, "x":0.5}
+)
+
+col3.plotly_chart(inc_imm_scatter)
 
 #another infections bar figure
 cases_year_global2 =cases_year_global.T.sort_index()
@@ -159,15 +266,24 @@ fig4.add_annotation(x=19, y=873022,
         bgcolor="#ff7f0e",
         opacity=0.8)
 
-col2.plotly_chart(fig4)
+col4.plotly_chart(fig4)
+
+#adding resources about outliers
+st.caption('Measles outbreak in Mongolia in 2016')
+st.write("[link](https://www.who.int/mongolia/news/detail/04-05-2016-measles-outbreak-in-mongolia-faqs)")
+st.caption('Measles outbreak in 1991')
+st.write("[link](https://www.cdc.gov/mmwr/preview/mmwrhtml/00016101.htm)")
+st.caption('Measles outbreak in 2019 in the region of Samoa and New Zealand')
+st.write("[link](https://www.mfat.govt.nz/en/countries-and-regions/australia-and-pacific/niue/new-zealand-high-commission-to-niue/about-niue/)")
+st.write("[link](https://en.wikipedia.org/wiki/2019_Samoa_measles_outbreak)")
 
 
 st.subheader("Child Measles Vaccination Levels from 1980 to 2020")
-
 # Enable selection of countries for plot (Widgets: selectbox)
 countries = sorted(pd.unique(df_imm['Country Name']))
 country = st.selectbox("Choose a Country", countries)
 
+col6, col7, col8= st.columns(3)
 # Process country data
 country_df = df_imm[df_imm['Country Name'] == country].copy()
 country_df.drop(columns=['Country Name', 'Country Code', 'Indicator Name', 'Indicator Code'], inplace=True)
@@ -176,7 +292,6 @@ country_df = country_df.T.rename(columns={0: 'imm_rate'})
 df_subset = country_df.loc['1980':'2020', 'imm_rate']
 
 # Plot vaccination levels per country
-colg, colt = st.columns(2)
 rate_years_fig = go.Figure(data=go.Scatter(x=df_subset.index.astype('int'),
                                            y=df_subset.values,
                                            line={"color": "royalblue", "width": 2},
@@ -187,66 +302,25 @@ rate_years_fig.update_xaxes(range=[1980, 2020])
 rate_years_fig.update_yaxes(range=[0, 100])
 
 # Update the layout
+rate_years_fig.update_layout(width=1000, height=600)
 rate_years_fig.update_layout(
     xaxis={"title": {"text": "Year", "font": {"size": 12}}},
     yaxis={"title": {"text": "MMR Immunization Level [%]", "font": {"size": 12}}},
     title={'text': "Percent of Children 12-23 Months of Age Immunized Against Measles in "+ country, "font": {"size": 16}, "x":0.5}
 )
 
-colg.plotly_chart(rate_years_fig)
+col6.plotly_chart(rate_years_fig)
 
-if st.checkbox("Check the box if you are interested in the table"):
-    st.subheader("This is the country's dataset:")
-    colt.dataframe(data=df_subset)
+#add image
+col7.write(" ")
 
-#plots MCV1 and MCV1
-
-mcv = st.selectbox('Choose type of Antigen vaccination:', ['MCV1', 'MCV2'])
-col3, col4 = st.columns(2)
-
-mcv1 = vacc_year_country.loc[vacc_year_country['ANTIGEN'] == 'MCV1']
-mcv2 = vacc_year_country.loc[vacc_year_country['ANTIGEN'] == 'MCV2']
-mcv1 = mcv1.sort_values('YEAR')
-mcv2 = mcv2.sort_values('YEAR')
-
-fig2 = px.choropleth(mcv1, locations=mcv1['NAME'], locationmode='country names', color = mcv1['percent'],
-              hover_name=mcv1['NAME'], animation_frame=mcv1['YEAR'],
-              color_continuous_scale=px.colors.sequential.RdBu, projection='natural earth', width=900, height=500, labels={"percent":"Coverage% of vaccinated"})
-fig2.update_layout(
-    title_text='Coverage in % of vaccinated with MCV1 per country through the years',
-    geo=dict(
-        showframe=False,
-        showcoastlines=False,
-        projection_type='equirectangular'
-    )
-)
-
-fig3 = px.choropleth(mcv2, locations=mcv2['NAME'], locationmode='country names', color = mcv2['percent'],
-              hover_name=mcv2['NAME'], animation_frame=mcv2['YEAR'],
-              color_continuous_scale=px.colors.sequential.RdBu, projection='natural earth', width=900, height=500, labels={"percent":"Coverage % of vaccinated"})
-fig3.update_layout(
-    title_text='Coverage in % of vaccinated with MCV2 per country through the years',
-    geo=dict(
-        showframe=False,
-        showcoastlines=False,
-        projection_type='equirectangular'
-    )
-)
-
-if mcv == "MCV1":
-    col3.plotly_chart(fig2)
-elif mcv == "MCV2":
-    col3.plotly_chart(fig3)
-
-anti_year = vacc_year_country.groupby(['YEAR', 'ANTIGEN']).percent.mean().reset_index()
-fig5 = px.line(anti_year, x='YEAR', y='percent', color='ANTIGEN', markers=True, title='Average coverage % for different vaccine antigens',
-              labels={
-                     "YEAR": "Year",
-                     "percent": "Coverage %",
-                     "ANTIGEN": "Antigens"
-                 },
-              )
-col4.plotly_chart(fig5)
+col8.text(" ")
+col8.text(" ")
+col8.text(" ")
+col8.text(" ")
+col8.text(" ")
+image = Image.open('/home/ansam/Documents/github/Measles-Group-Project/measles/data/5591-vaccine_vial_needle-732x549-thumbnail.jpg')
+col8.image(image, use_column_width=True)
 
 st.header(" ")
 st.subheader("Overall Measles Vaccination Levels and Disease Incidence from 1980 to 2020")
@@ -254,6 +328,8 @@ st.subheader("Overall Measles Vaccination Levels and Disease Incidence from 1980
 # Enable selection of countries for plot (Widgets: selectbox)
 countries = sorted(pd.unique(df_incidence['Country / Region']))
 country = st.selectbox("Choose a Country", countries)
+
+col8, col9= st.columns(2)
 
 # process data
 country_inc_df = df_incidence[df_incidence['Country / Region'] == country].copy()
@@ -302,18 +378,26 @@ vac_inc_fig.add_trace(
                mode="lines+markers",
                name="Measles incidence"),
     secondary_y=True)
-
 # Add figure title
 vac_inc_fig.update_layout(title={'text': "Measles Immunization Level and Disease Incidence in "+ country, "font": {"size": 16}, "x":0.5})
-
 # Set x-axis title and range
 vac_inc_fig.update_xaxes(title_text="Year", range=[1980,2020])
-
 # Set y-axes titles and ranges
 vac_inc_fig.update_yaxes(title_text="Vaccination level [%]", secondary_y=False, range=[0,100])
 vac_inc_fig.update_yaxes(title_text="Incidence", secondary_y=True)
 
-st.plotly_chart(vac_inc_fig)
+col8.plotly_chart(vac_inc_fig)
+
+#MCv1 and 2 line
+anti_year = vacc_year_country.groupby(['YEAR', 'ANTIGEN']).percent.mean().reset_index()
+fig5 = px.line(anti_year, x='YEAR', y='percent', color='ANTIGEN', markers=True, title='Average coverage % for different vaccine antigens',
+              labels={
+                     "YEAR": "Year",
+                     "percent": "Coverage %",
+                     "ANTIGEN": "Antigens"
+                 },
+              )
+col9.plotly_chart(fig5)
 
 
 st.header(" ")
