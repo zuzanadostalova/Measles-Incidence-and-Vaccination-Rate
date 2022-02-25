@@ -174,7 +174,7 @@ st.subheader("Country Incidence of Measles vs Vaccination Rate")
 year_inc_df = df_incidence.copy()
 year_inc_df.drop(columns = ['Disease','Denominator'], inplace = True)
 # melt incidence df
-melted_inc_df = pd.melt(year_inc_df, id_vars=['Country / Region'], value_vars=[str(x) for x in list(range(1980, 2021))])
+melted_inc_df = pd.melt(year_inc_df, id_vars=['Country / Region'], value_vars=[str(x) for x in list(range(2000, 2021))])
 melted_inc_df.rename(columns = {'variable':'year','value':'INCIDENCE'}, inplace = True)
 melted_inc_df.sort_values(by='Country / Region', inplace = True)
 melted_inc_df.year = melted_inc_df.year.astype(int)
