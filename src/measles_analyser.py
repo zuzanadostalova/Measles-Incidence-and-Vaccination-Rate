@@ -1,18 +1,10 @@
 # Import needed packages
 import streamlit as st
 from plotly.subplots import make_subplots
-from urllib.request import urlopen
-import plotly.graph_objects as go
 import plotly.express as px
-import plotly.io as pio
-import pandas as pd
 import numpy as np
 import pandas as pd
-import statsmodels.formula.api as smf
-import matplotlib.pyplot as plt
-import seaborn as sns
 import plotly.graph_objects as go
-from urllib.request import urlopen
 import json
 from copy import deepcopy
 import pycountry #conda install -c conda-forge pycountry
@@ -42,34 +34,32 @@ def load_jsonfile(path):
     return regions
 
 #Elena's data
-df_imm_raw = load_dataframe(path="/home/ansam/Documents/github/Measles-Group-Project/measles/data/children_imm_rates_worldbank.csv", rows_to_skip=0)
+df_imm_raw = load_dataframe(path="../data/children_imm_rates_worldbank.csv", rows_to_skip=0)
 df_imm = deepcopy(df_imm_raw)
-#df_imm = pd.read_csv('../data/children_imm_rates_worldbank.csv', na_filter=False)
-df_imm_all_raw = load_dataframe(path="/home/ansam/Documents/github/Measles-Group-Project/measles/data/Measles vaccination coverage.csv", rows_to_skip=0)
+df_imm_all_raw = load_dataframe(path="../data/Measles vaccination coverage 2.csv", rows_to_skip=0)
 df_imm_all = deepcopy(df_imm_all_raw)
-df_incidence_raw = load_dataframe(path="/home/ansam/Documents/github/Measles-Group-Project/measles/data/Measles reported cases and incidence by year (Incidence rate).csv", rows_to_skip=0)
+df_incidence_raw = load_dataframe(path="../data/Measles reported cases and incidence by year (Incidence rate).csv", rows_to_skip=0)
 df_incidence = deepcopy(df_incidence_raw)
 
 #Ansam's data
-per_vacc_raw = load_dataframe(path='/home/ansam/Documents/github/Measles-Group-Project/measles/data/API.csv', rows_to_skip=0)
+per_vacc_raw = load_dataframe(path='../data/API.csv', rows_to_skip=0)
 per_vacc = deepcopy(per_vacc_raw)
-incidents_100k_raw = load_dataframe(path='/home/ansam/Documents/github/Measles-Group-Project/measles/data/incidents per 100k.csv', rows_to_skip=0)
+incidents_100k_raw = load_dataframe(path='../data/incidents per 100k.csv', rows_to_skip=0)
 incidents_100k = deepcopy(incidents_100k_raw)
-num_cases_raw = load_dataframe(path='/home/ansam/Documents/github/Measles-Group-Project/measles/data/num of measles cases.csv', rows_to_skip=0)
+num_cases_raw = load_dataframe(path='../data/num of measles cases.csv', rows_to_skip=0)
 num_cases = deepcopy(num_cases_raw)
-per_vacc_all_raw = load_dataframe(path='/home/ansam/Documents/github/Measles-Group-Project/measles/data/percentage of children vaccinated.csv', rows_to_skip=0)
+per_vacc_all_raw = load_dataframe(path='../data/percentage of children vaccinated.csv', rows_to_skip=0)
 per_vacc_all = deepcopy(per_vacc_all_raw)
-vacc_year_country_raw = load_dataframe(path='/home/ansam/Documents/github/Measles-Group-Project/measles/data/Measles vaccination coverage.csv', rows_to_skip=0)
-vacc_year_country = deepcopy(vacc_year_country_raw)
-cases_year_global_raw = pd.read_csv('/home/ansam/Documents/github/Measles-Group-Project/measles/data/Measles reported cases and incidence by year.csv', index_col=0)
+df_imm_all_raw = load_dataframe(path='../data/Measles vaccination coverage.csv', rows_to_skip=0)
+vacc_year_country = deepcopy(df_imm_all_raw)
+cases_year_global_raw = pd.read_csv('../data/Measles reported cases and incidence by year.csv', index_col=0)
 cases_year_global = deepcopy(cases_year_global_raw)
 
 #Zuzana's data
-df_immun_child_world_years_raw = load_dataframe(path="/home/ansam/Documents/github/Measles-Group-Project/measles/data/API_SH.IMM.MEAS_DS2_en_csv_v2_3692853.csv", rows_to_skip=0)
+df_immun_child_world_years_raw = load_dataframe(path="../data/API_SH.IMM.MEAS_DS2_en_csv_v2_3692853.csv", rows_to_skip=0)
 df_immun_child_world_years = deepcopy(df_immun_child_world_years_raw)
-#df_immun_child_world_years.describe(include='all')
 df_immun_child_world_years.dropna(axis=1, how='all', inplace=True)
-df_immun_child_world_income_raw = load_dataframe(path="/home/ansam/Documents/github/Measles-Group-Project/measles/data/Metadata_Country_API_SH.IMM.MEAS_DS2_en_csv_v2_3692853.csv", rows_to_skip=0)
+df_immun_child_world_income_raw = load_dataframe(path="../data/Metadata_Country_API_SH.IMM.MEAS_DS2_en_csv_v2_3692853.csv", rows_to_skip=0)
 df_immun_child_world_income = deepcopy(df_immun_child_world_income_raw)
 #df_immun_child_world_income.drop('Unnamed: 5', axis=1, inplace=True)
 
@@ -112,12 +102,12 @@ mcv2 = vacc_year_country.loc[vacc_year_country['ANTIGEN'] == 'MCV2']
 mcv1 = mcv1.sort_values('YEAR')
 mcv2 = mcv2.sort_values('YEAR')
 
-#regions = load_jsonfile("data/raw/stzh.adm_stadtkreise_a.json")
+#regions = load_jsonfile("../data/raw/stzh.adm_stadtkreise_a.json")
 
 st.header("Exploring the relationship between measles incidence and vaccination levels across the world")
 st.subheader("The Measles Map: Disease Incidence and Vaccination Levels")
 
-show_labels = st.radio(label='Choose type of Antigen vaccination:', options=['MCV1', 'MCV2'])
+show_labels = st.radio(label='Choose Vaccine:', options=['MCV1', 'MCV2'])
 col1, col2= st.columns(2)
 
 #first map
@@ -141,7 +131,7 @@ fig2 = px.choropleth(mcv1, locations=mcv1['NAME'], locationmode='country names',
               hover_name=mcv1['NAME'], animation_frame=mcv1['YEAR'],
               color_continuous_scale=px.colors.sequential.RdBu, projection='natural earth', width=900, height=500, labels={"percent":"Coverage% of vaccinated"})
 fig2.update_layout(
-    title_text='Coverage in % of vaccinated with MCV1 per country through the years',
+    title_text='Coverage in % vaccinated with MCV1 per country through the years',
     geo=dict(
         showframe=False,
         showcoastlines=False,
@@ -153,7 +143,7 @@ fig3 = px.choropleth(mcv2, locations=mcv2['NAME'], locationmode='country names',
               hover_name=mcv2['NAME'], animation_frame=mcv2['YEAR'],
               color_continuous_scale=px.colors.sequential.RdBu, projection='natural earth', width=900, height=500, labels={"percent":"Coverage % of vaccinated"})
 fig3.update_layout(
-    title_text='Coverage in % of vaccinated with MCV2 per country through the years',
+    title_text='Coverage in % vaccinated with MCV2 per country through the years',
     geo=dict(
         showframe=False,
         showcoastlines=False,
@@ -174,7 +164,7 @@ st.subheader("Country Incidence of Measles vs Vaccination Rate")
 year_inc_df = df_incidence.copy()
 year_inc_df.drop(columns = ['Disease','Denominator'], inplace = True)
 # melt incidence df
-melted_inc_df = pd.melt(year_inc_df, id_vars=['Country / Region'], value_vars=[str(x) for x in list(range(2000, 2021))])
+melted_inc_df = pd.melt(year_inc_df, id_vars=['Country / Region'], value_vars=[str(x) for x in list(range(1980, 2021))])
 melted_inc_df.rename(columns = {'variable':'year','value':'INCIDENCE'}, inplace = True)
 melted_inc_df.sort_values(by='Country / Region', inplace = True)
 melted_inc_df.year = melted_inc_df.year.astype(int)
@@ -190,7 +180,7 @@ year_inc_imm_1_df.INCIDENCE = year_inc_imm_1_df.INCIDENCE.astype(str)
 year_inc_imm_1_df.INCIDENCE = year_inc_imm_1_df.apply(lambda row: row.INCIDENCE.replace(',', ''), axis=1)
 year_inc_imm_1_df.INCIDENCE = year_inc_imm_1_df.INCIDENCE.astype(float).sort_values()
 year_inc_imm_1_df.year = year_inc_imm_1_df.year.astype(int)
-year_inc_imm_1_df.year = year_inc_imm_1_df.year.sort_values()
+year_inc_imm_1_df = year_inc_imm_1_df.sort_values('year')
 # filter immunization df (MCV2)
 year_imm_2_df = df_imm_all[(df_imm_all['ANTIGEN']=='MCV2')&(df_imm_all['COVERAGE_CATEGORY']=='ADMIN')].copy()
 year_imm_2_df = year_imm_2_df[['NAME','COVERAGE','YEAR']]
@@ -203,7 +193,7 @@ year_inc_imm_2_df.INCIDENCE = year_inc_imm_2_df.INCIDENCE.astype(str)
 year_inc_imm_2_df.INCIDENCE = year_inc_imm_2_df.apply(lambda row: row.INCIDENCE.replace(',', ''), axis=1)
 year_inc_imm_2_df.INCIDENCE = year_inc_imm_2_df.INCIDENCE.astype(float).sort_values()
 year_inc_imm_2_df.year = year_inc_imm_2_df.year.astype(int)
-year_inc_imm_2_df.year = year_inc_imm_2_df.year.sort_values()
+year_inc_imm_2_df = year_inc_imm_2_df.sort_values('year')
 
 # Plot figure
 left_column, right_column, _ , _= st.columns(4)
@@ -244,7 +234,7 @@ col3.plotly_chart(inc_imm_scatter)
 #another infections bar figure
 cases_year_global2 =cases_year_global.T.sort_index()
 fig4 = px.line(cases_year_global2, x=cases_year_global2.index, y='Measles', title="Number of global infections per year",
-             labels={'index':'years', 'Measels': 'Numer of infection'})
+             labels={'index':'years', 'Measels': 'Number of infection'})
 fig4.update_traces(marker_color='rgb(158,202,225)', marker_line_color='rgb(8,48,107)')
 fig4.add_annotation(x=19, y=873022,
             text="What happened?",
@@ -270,13 +260,15 @@ fig4.add_annotation(x=19, y=873022,
 col4.plotly_chart(fig4)
 
 #adding resources about outliers
-st.caption('Measles outbreak in Mongolia in 2016')
-st.write("[link](https://www.who.int/mongolia/news/detail/04-05-2016-measles-outbreak-in-mongolia-faqs)")
-st.caption('Measles outbreak in 1991')
-st.write("[link](https://www.cdc.gov/mmwr/preview/mmwrhtml/00016101.htm)")
-st.caption('Measles outbreak in 2019 in the region of Samoa and New Zealand')
-st.write("[link](https://www.mfat.govt.nz/en/countries-and-regions/australia-and-pacific/niue/new-zealand-high-commission-to-niue/about-niue/)")
-st.write("[link](https://en.wikipedia.org/wiki/2019_Samoa_measles_outbreak)")
+st.write('The outliers have a fascinating historical underpinning. Check out these links for more info:')
+st.write("[Measles outbreak in 2019 in the region of Samoa and New Zealand]"
+         "(https://en.wikipedia.org/wiki/2019_Samoa_measles_outbreak)")
+st.write("[Measles outbreak in 2019 in the region of Samoa and New Zealand(2)]"
+         "(https://www.mfat.govt.nz/en/countries-and-regions/australia-and-pacific/niue/new-zealand-high-commission-to-niue/about-niue/)")
+st.write("[Measles outbreak in Mongolia in 2016]"
+         "(https://www.who.int/mongolia/news/detail/04-05-2016-measles-outbreak-in-mongolia-faqs)")
+st.write("[Measles outbreak in 1991 in Niue-New Zeland]"
+         "(https://www.cdc.gov/mmwr/preview/mmwrhtml/00016101.htm)")
 
 st.subheader("Child Measles Vaccination Levels from 1980 to 2020")
 # Enable selection of countries for plot (Widgets: selectbox)
@@ -320,7 +312,7 @@ col8.text(" ")
 col8.text(" ")
 col8.text(" ")
 col8.text(" ")
-image = Image.open('/home/ansam/Documents/github/Measles-Group-Project/measles/data/5591-vaccine_vial_needle-732x549-thumbnail.jpg')
+image = Image.open('../data/5591-vaccine_vial_needle-732x549-thumbnail.jpg')
 col8.image(image, use_column_width=True)
 
 st.header(" ")
