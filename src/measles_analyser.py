@@ -15,7 +15,6 @@ import plotly.graph_objects as go
 from urllib.request import urlopen
 import json
 from copy import deepcopy
-import geojson
 import pycountry #conda install -c conda-forge pycountry
 from PIL import Image
 
