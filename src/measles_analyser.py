@@ -124,9 +124,6 @@ fig.update_layout(
         projection_type='equirectangular'
     )
 )
-fig.update_layout(
-    xaxis = go.layout.XAxis(tickangle =45)
-)
 col1.plotly_chart(fig)
 
 #second map
@@ -230,9 +227,6 @@ inc_imm_scatter.update_layout(
     xaxis={"title": {"text": "Immunization Level [%]", "font": {"size": 12}}},
     yaxis={"title": {"text": "Measles Incidence [per million]", "font": {"size": 12}}},
     title={'text': "Country Incidence of Measles and Vaccination Rate", "font": {"size": 16}, "x":0.5}
-)
-inc_imm_scatter.update_layout(
-    xaxis = go.layout.XAxis(tickangle =45)
 )
 
 col3.plotly_chart(inc_imm_scatter)
